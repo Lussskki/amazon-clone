@@ -11,6 +11,6 @@ try{
     signale.success('Mongo: connected')
 }catch(err){
     signale.error(`Mongo: error-${err}`)
-}
+} 
 
 export default mongoose
