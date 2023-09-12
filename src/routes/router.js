@@ -1,5 +1,7 @@
 import express from 'express'
 const router = new express.Router()
+//Bcrypt
+import bcrypt from 'bcrypt'
 
 //Products schema
 import productsSchema from '../db/model/productsSchema.js'
@@ -50,12 +52,12 @@ router.post("/register", async (req, res) => {
             const finalUser = new USER({
                 fname, 
                 email, 
-                mobile, 
+                mobile,  
                 password, 
                 cpassword
             })
             const storedata = await finalUser.save();           
-            res.status(201).json(storedata);
+            res.status(201).json({message:'Registration: successfully'});
         }
     } catch (err) { 
         signale.error(`Post: registration error- ${err}`)
@@ -64,6 +66,37 @@ router.post("/register", async (req, res) => {
 
 })
 
+//Post: login form
+router.post('/login', async (req, res)=>{
+    const {email,password} = req.body
+
+    if(!email|| !password){
+        res.status(400).json({message: 'Fill both'})
+    } 
+    
+    try{
+        const userLogin = await USER.findOne({email:email})
+        if (userLogin) {
+            const isMatch = await bcrypt.compare(password, userLogin.password)
+            console.log("login:" + isMatch)
+            if (!isMatch) {
+              res.status(400).json({ message: 'Invalid match' })
+            } else {
+              // Token generate
+              const token = await userLogin.generateAuthToken()
+              console.log("token:" + token)
+              
+              res.status(201).json({ user: userLogin, token: token })
+            }
+          }
+        } 
+ 
+        catch (err) {
+            console.error(err)
+            res.status(400).json({ message: 'An error occurred' })
+          }
+          
+})
 
 
 
