@@ -7,6 +7,8 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 const secretKey = process.env.KEY
 
+import signale from "signale"
+
 //Schema
 const userSchema = new mongoose.Schema({
     fname: {
@@ -44,7 +46,7 @@ const userSchema = new mongoose.Schema({
     },
     tokens: [{
         token: {
-            type: String,
+            type: String, 
             required: true
         }
     }],
@@ -59,18 +61,29 @@ userSchema.pre('save', async function hash (next){
     next()
 })
 //Generate token
-userSchema.methods.generateAuthToken = async function(){
-    try{
-        let token = jwt.sign({_id:this._id},secretKey)
-        this.tokens = this.tokens.concat({token:token})
+userSchema.methods.generateAuthToken = async function() {
+    try {
+        let token = jwt.sign({ _id: this._id }, secretKey)
+        console.log('Generated token- Login:', token); 
+        this.tokens = this.tokens.concat({ token: token })
         await this.save()
-        
         return token
-    }catch(err){
-        signale.error(`Generate_token: error- ${err}`)
+    } catch (err) {
+        console.error('Generate_token error:', err)
     }
 }
- 
+
+//Add to cart
+userSchema.methods.addCartData = async function(cart){
+    try{
+        this.carts = this.carts.concat(cart)
+        await this.save()
+        return this.carts
+    }catch(err){
+        console.log(err)
+    }
+}
+
 
 const USER = new mongoose.model('USER', userSchema)
 
