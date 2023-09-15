@@ -1,17 +1,30 @@
-//schema
+import mongoose from 'mongoose'
 import productsSchema from '../db/model/productsSchema.js'
 import productsData from './productsData.js'
-//development
-import signale from 'signale'
 
+const defaultData = async () => {
+const session = await mongoose.startSession()
+      session.startTransaction()
 
-const defaultData = async ()=>{
-    try{
-        await productsSchema.deleteMany({})
-        const storeData = await productsSchema.insertMany(productsData) 
-    }catch(err){
-        signale.error(`DefaultData: error- ${err}`)
+  try {
+    // Clear existing data
+    await productsSchema.deleteMany({}, { session })
+
+    // Insert new data
+    for (const productData of productsData) {
+      const product = new productsSchema(productData)
+      await product.save({ session })
     }
-}
+
+    await session.commitTransaction()
+    session.endSession()
+
+    // console.log('Default data inserted successfully.')
+  } catch (err) {
+    await session.abortTransaction()
+    session.endSession()
+    // console.error(`DefaultData: error - ${err}`)
+  }
+};
 
 export default defaultData
