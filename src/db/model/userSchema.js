@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt'
 //Webtoken
 import jwt from 'jsonwebtoken'
 const secretKey = process.env.KEY
-
+//Development
 import signale from "signale"
 
 //Schema
@@ -64,7 +64,7 @@ userSchema.pre('save', async function hash (next){
 userSchema.methods.generateAuthToken = async function() {
     try {
         let token = jwt.sign({ _id: this._id }, secretKey)
-        console.log('Generated token- Login:', token); 
+         console.log('Generated token- Login:', token)
         this.tokens = this.tokens.concat({ token: token })
         await this.save()
         return token
