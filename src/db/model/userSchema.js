@@ -72,7 +72,6 @@ userSchema.methods.generateAuthToken = async function() {
         console.error('Generate_token error:', err)
     }
 }
-
 //Add to cart
 userSchema.methods.addCartData = async function(cart){
     try{
